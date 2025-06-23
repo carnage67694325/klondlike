@@ -1,0 +1,96 @@
+import 'package:flame/components.dart';
+import 'package:flame/flame.dart';
+import 'package:flame/game.dart';
+import 'package:klondlike/components/foundation.dart';
+import 'package:klondlike/components/pile.dart';
+import 'package:klondlike/components/stock.dart';
+import 'package:klondlike/components/waste.dart';
+
+class KlondikeGame extends FlameGame {
+  String sprite = 'klondike-sprites.png';
+  static const double cardWidth = 1000.0;
+  static const double cardHeight = 1400.0;
+  static const double cardGap = 175.0;
+  static const double cardRadius = 100.0;
+  static final Vector2 cardSize = Vector2(cardWidth, cardHeight);
+
+  @override
+  Future<void> onLoad() async {
+    await Flame.images.load(sprite);
+    Stock stock = initStock();
+    Waste waste = initWaste();
+    List<Foundation> foundations = initFoundations();
+    List<Pile> piles = initPiles();
+    addingComponentsToGameWorld(stock, waste, foundations, piles);
+    initCameraViewFinder();
+  }
+
+  List<Pile> initPiles() {
+    final piles = List.generate(
+      7,
+      (i) => Pile()
+        ..size = cardSize
+        ..position = Vector2(
+          cardGap + i * (cardWidth + cardGap),
+          cardWidth + 2 * cardGap,
+        ),
+    );
+    return piles;
+  }
+
+  List<Foundation> initFoundations() {
+    final foundations = List.generate(
+      4,
+      (i) => Foundation()
+        ..size = cardSize
+        ..position = Vector2(
+          (i + 3) * (cardWidth + cardGap) + cardGap,
+          cardGap,
+        ),
+    );
+    return foundations;
+  }
+
+  Waste initWaste() {
+    final waste = Waste()
+      ..size = cardSize
+      ..position = Vector2(cardWidth * 2 + cardGap, cardGap);
+    return waste;
+  }
+
+  Stock initStock() {
+    final stock = Stock()
+      ..size = cardSize
+      ..position = Vector2(cardGap, cardGap);
+    return stock;
+  }
+
+  void addingComponentsToGameWorld(
+    Stock stock,
+    Waste waste,
+    List<Foundation> foundations,
+    List<Pile> piles,
+  ) {
+    world.add(stock);
+    world.add(waste);
+    world.addAll(foundations);
+    world.addAll(piles);
+  }
+
+  void initCameraViewFinder() {
+    camera.viewfinder.visibleGameSize = Vector2(
+      cardWidth * 7 + cardGap * 8,
+      4 * cardHeight + 3 * cardGap,
+    );
+    camera.viewfinder.position = Vector2(cardWidth * 3.5 + cardGap * 4, 0);
+    camera.viewfinder.anchor = Anchor.topCenter;
+  }
+
+  Sprite klondlike(double x, double y, double width, double height) {
+    return Sprite(
+      Flame.images.fromCache(sprite),
+      srcPosition: Vector2(x, y),
+      srcSize: Vector2(width, height),
+    );
+  }
+}
