@@ -1,6 +1,9 @@
+import 'dart:math';
+
 import 'package:flame/components.dart';
 import 'package:flame/flame.dart';
 import 'package:flame/game.dart';
+import 'package:klondlike/components/card.dart';
 import 'package:klondlike/components/foundation.dart';
 import 'package:klondlike/components/pile.dart';
 import 'package:klondlike/components/stock.dart';
@@ -22,6 +25,18 @@ class KlondikeGame extends FlameGame {
     List<Pile> piles = initPiles();
     addingComponentsToGameWorld(stock, waste, foundations, piles);
     initCameraViewFinder();
+    final random = Random();
+    for (var i = 0; i < 7; i++) {
+      for (var j = 0; j < 4; j++) {
+        final card = Card(random.nextInt(13) + 1, random.nextInt(4))
+          ..position = Vector2(100 + i * 1150, 100 + j * 1500)
+          ..addToParent(world);
+        if (random.nextDouble() < 0.9) {
+          // flip face up with 90% probability
+          card.flip();
+        }
+      }
+    }
   }
 
   List<Pile> initPiles() {
@@ -31,7 +46,7 @@ class KlondikeGame extends FlameGame {
         ..size = cardSize
         ..position = Vector2(
           cardGap + i * (cardWidth + cardGap),
-          cardWidth + 2 * cardGap,
+          cardHeight + 2 * cardGap,
         ),
     );
     return piles;
@@ -53,7 +68,7 @@ class KlondikeGame extends FlameGame {
   Waste initWaste() {
     final waste = Waste()
       ..size = cardSize
-      ..position = Vector2(cardWidth * 2 + cardGap, cardGap);
+      ..position = Vector2(cardWidth + 2 * cardGap, cardGap);
     return waste;
   }
 
