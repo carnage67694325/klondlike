@@ -7,7 +7,6 @@ import 'package:klondlike/components/stock.dart';
 import 'package:klondlike/components/waste.dart';
 
 class KlondikeGame extends FlameGame {
-  String sprite = 'klondike-sprites.png';
   static const double cardWidth = 1000.0;
   static const double cardHeight = 1400.0;
   static const double cardGap = 175.0;
@@ -85,12 +84,19 @@ class KlondikeGame extends FlameGame {
     camera.viewfinder.position = Vector2(cardWidth * 3.5 + cardGap * 4, 0);
     camera.viewfinder.anchor = Anchor.topCenter;
   }
-
-  Sprite klondlike(double x, double y, double width, double height) {
-    return Sprite(
-      Flame.images.fromCache(sprite),
-      srcPosition: Vector2(x, y),
-      srcSize: Vector2(width, height),
-    );
-  }
 }
+
+Sprite klondlikeSprite({
+  required double x,
+  required double y,
+  required double width,
+  required double height,
+}) {
+  return Sprite(
+    Flame.images.fromCache(sprite),
+    srcPosition: Vector2(x, y),
+    srcSize: Vector2(width, height),
+  );
+}
+
+String sprite = 'klondike-sprites.png';
