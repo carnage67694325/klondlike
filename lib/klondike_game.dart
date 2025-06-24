@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'dart:ui';
 
 import 'package:flame/components.dart';
 import 'package:flame/flame.dart';
@@ -15,28 +16,31 @@ class KlondikeGame extends FlameGame {
   static const double cardGap = 175.0;
   static const double cardRadius = 100.0;
   static final Vector2 cardSize = Vector2(cardWidth, cardHeight);
+  static final cardRRect = RRect.fromRectAndRadius(
+    const Rect.fromLTWH(0, 0, cardWidth, cardHeight),
+    const Radius.circular(cardRadius),
+  );
 
   @override
   Future<void> onLoad() async {
     await Flame.images.load(sprite);
-    Stock stock = initStock();
-    Waste waste = initWaste();
-    List<Foundation> foundations = initFoundations();
+    StockPile stock = initStock();
+    WastePile waste = initWaste();
+    List<FoundationPile> foundations = initFoundations();
     List<Pile> piles = initPiles();
     addingComponentsToGameWorld(stock, waste, foundations, piles);
     initCameraViewFinder();
-    final random = Random();
-    for (var i = 0; i < 7; i++) {
-      for (var j = 0; j < 4; j++) {
-        final card = Card(random.nextInt(13) + 1, random.nextInt(4))
-          ..position = Vector2(100 + i * 1150, 100 + j * 1500)
-          ..addToParent(world);
-        if (random.nextDouble() < 0.9) {
-          // flip face up with 90% probability
-          card.flip();
-        }
-      }
-    }
+    addingCardsToStock(stock);
+  }
+
+  void addingCardsToStock(StockPile stock) {
+    final cards = [
+      for (var rank = 1; rank <= 13; rank++)
+        for (var suit = 1; suit < 4; suit++) Card(rank, suit),
+    ];
+    cards.shuffle();
+    world.addAll(cards);
+    cards.forEach(stock.acquireCard);
   }
 
   List<Pile> initPiles() {
@@ -52,10 +56,10 @@ class KlondikeGame extends FlameGame {
     return piles;
   }
 
-  List<Foundation> initFoundations() {
+  List<FoundationPile> initFoundations() {
     final foundations = List.generate(
       4,
-      (i) => Foundation()
+      (i) => FoundationPile()
         ..size = cardSize
         ..position = Vector2(
           (i + 3) * (cardWidth + cardGap) + cardGap,
@@ -65,24 +69,24 @@ class KlondikeGame extends FlameGame {
     return foundations;
   }
 
-  Waste initWaste() {
-    final waste = Waste()
+  WastePile initWaste() {
+    final waste = WastePile()
       ..size = cardSize
       ..position = Vector2(cardWidth + 2 * cardGap, cardGap);
     return waste;
   }
 
-  Stock initStock() {
-    final stock = Stock()
+  StockPile initStock() {
+    final stock = StockPile()
       ..size = cardSize
       ..position = Vector2(cardGap, cardGap);
     return stock;
   }
 
   void addingComponentsToGameWorld(
-    Stock stock,
-    Waste waste,
-    List<Foundation> foundations,
+    StockPile stock,
+    WastePile waste,
+    List<FoundationPile> foundations,
     List<Pile> piles,
   ) {
     world.add(stock);
